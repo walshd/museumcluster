@@ -139,20 +139,6 @@ h1, h2, h3, h4, h5, h6 {
     cursor: grab;
 }
 
-.d3-tooltip {
-    position: absolute;
-    padding: 10px 14px;
-    background: var(--color-accent);
-    color: var(--color-on-accent);
-    border-radius: 4px;
-    font-size: 0.85rem;
-    pointer-events: none;
-    z-index: 2000;
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-    max-width: 250px;
-    font-family: var(--font-body);
-}
-
 .btn-fit-view {
     position: absolute;
     bottom: 20px;
@@ -192,6 +178,7 @@ h1, h2, h3, h4, h5, h6 {
     box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
     max-width: 250px;
     font-family: var(--font-body);
+    display: block;
 }
 
 .cluster-label {

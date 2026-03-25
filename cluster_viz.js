@@ -48,7 +48,7 @@ function initSVG() {
     }
 
     if (!document.querySelector(".d3-tooltip")) {
-        d3.select("#cluster-viz-container").append("div")
+        d3.select("body").append("div")
             .attr("class", "d3-tooltip")
             .style("opacity", 0);
     }
@@ -253,15 +253,15 @@ function drawNodes(itemNodes) {
             d3.select(event.currentTarget).select("circle").attr("stroke", "#000").attr("stroke-width", 2);
             const tooltip = d3.select(".d3-tooltip");
             tooltip.transition().duration(200).style("opacity", .9);
-            tooltip.html(`<strong>${d.title}</strong><br/>${d.clusterValue}`);
+            tooltip.html(`<strong>${d.title}</strong><br/>${d.clusterValue}`)
+                .style("left", (event.pageX + 15) + "px")
+                .style("top", (event.pageY - 15) + "px");
         })
         .on("mousemove", (event) => {
             const tooltip = d3.select(".d3-tooltip");
-            const container = document.getElementById('cluster-viz-container');
-            const [x, y] = d3.pointer(event, container);
             tooltip
-                .style("left", (x + 15) + "px")
-                .style("top", (y - 15) + "px");
+                .style("left", (event.pageX + 15) + "px")
+                .style("top", (event.pageY - 15) + "px");
         })
         .on("mouseout", (event, d) => {
             d3.select(event.currentTarget).select("circle").attr("stroke", "none");
