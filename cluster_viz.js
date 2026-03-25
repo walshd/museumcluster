@@ -4,11 +4,17 @@ let width, height;
 let svg, simulation, zoomLayer, zoom;
 
 function initSVG() {
+    console.log("DEBUG: initSVG called");
     const container = document.getElementById('cluster-viz-container');
-    if (!container) return;
+    if (!container) {
+        console.error("DEBUG: #cluster-viz-container not found!");
+        return;
+    }
     
     width = container.clientWidth;
-    height = container.clientHeight;
+    height = container.clientHeight || window.innerHeight; // Ensure a valid height fallback
+    
+    console.log(`DEBUG: initSVG Container Size: ${width}x${height}`);
     
     // Only remove SVG content, not the overlay buttons
     d3.select("#cluster-viz-container").selectAll("svg").remove();
@@ -20,6 +26,8 @@ function initSVG() {
         .attr("height", height)
         .attr("viewBox", [0, 0, width, height])
         .attr("style", "width: 100%; height: 100%; display: block; background: var(--color-bg); cursor: move;");
+
+    console.log("DEBUG: SVG appended");
 
     // Add Zoom Layer
     zoomLayer = svg.append("g").attr("class", "zoom-layer");
