@@ -46,6 +46,13 @@ function initSVG() {
     if (fitBtn) {
         fitBtn.onclick = fitToView;
     }
+
+    // Dynamic Tooltip Creation
+    d3.selectAll(".d3-tooltip").remove(); 
+    d3.select("body").append("div")
+        .attr("class", "d3-tooltip")
+        .style("opacity", 0)
+        .style("pointer-events", "none");
 }
 
 function fitToView() {
@@ -245,21 +252,21 @@ function drawNodes(itemNodes) {
         .attr("transform", d => `translate(${d.x},${d.y})`)
         .on("mouseover", (event, d) => {
             d3.select(event.currentTarget).select("circle").attr("stroke", "#000").attr("stroke-width", 2);
-            const tooltip = d3.select("#d3-tooltip");
+            const tooltip = d3.select(".d3-tooltip");
             tooltip.transition().duration(200).style("opacity", .9);
             tooltip.html(`<strong>${d.title}</strong><br/>${d.clusterValue}`)
                 .style("left", (event.clientX + 15) + "px")
                 .style("top", (event.clientY - 15) + "px");
         })
         .on("mousemove", (event) => {
-            const tooltip = d3.select("#d3-tooltip");
+            const tooltip = d3.select(".d3-tooltip");
             tooltip
                 .style("left", (event.clientX + 15) + "px")
                 .style("top", (event.clientY - 15) + "px");
         })
         .on("mouseout", (event, d) => {
             d3.select(event.currentTarget).select("circle").attr("stroke", "none");
-            d3.select("#d3-tooltip").transition().duration(500).style("opacity", 0);
+            d3.select(".d3-tooltip").transition().duration(500).style("opacity", 0);
         })
         .on("click", (event, d) => {
             const id = d.id.startsWith("item-") ? d.id.replace("item-", "") : d.id;
