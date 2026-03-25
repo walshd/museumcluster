@@ -8,9 +8,10 @@ function initSVG() {
     if (!container) return;
     
     width = container.clientWidth;
-    height = container.clientHeight || (window.innerHeight * 0.7);
+    height = container.clientHeight;
     
-    d3.select("#cluster-viz-container").selectAll("*").remove();
+    // Only remove SVG content, not the overlay buttons
+    d3.select("#cluster-viz-container").selectAll("svg").remove();
     
     // Create SVG
     svg = d3.select("#cluster-viz-container")
@@ -25,18 +26,18 @@ function initSVG() {
 
     // Setup Zoom behavior
     zoom = d3.zoom()
-        .scaleExtent([0.1, 5])
+        .scaleExtent([0.1, 10])
         .on("zoom", (event) => {
             zoomLayer.attr("transform", event.transform);
         });
 
     svg.call(zoom);
 
-    // Add a "Fit to View" button overlay
-    d3.select("#cluster-viz-container").append("button")
-        .text("Fit to View")
-        .attr("style", "position: absolute; bottom: 10px; right: 10px; z-index: 100; padding: 5px 10px; border-radius: 4px; border: 1px solid #ddd; background: #fff; cursor: pointer; font-family: var(--font-body); font-size: 12px;")
-        .on("click", fitToView);
+    // Setup click for existing UI button
+    const fitBtn = document.getElementById('btn-fit-view');
+    if (fitBtn) {
+        fitBtn.onclick = fitToView;
+    }
 
     if (!document.querySelector(".d3-tooltip")) {
         d3.select("body").append("div")

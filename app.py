@@ -49,6 +49,7 @@ app_ui = ui.page_sidebar(
     # Main Content Area: Viz (Full Width) and Detail Pane (Overlay)
     ui.div(
         ui.div(id="cluster-viz-container"),
+        ui.tags.button("Fit to View", id="btn-fit-view", class_="btn-fit-view"),
         ui.div(
             ui.output_ui("item_detail_pane"),
             id="detail-pane-container"
