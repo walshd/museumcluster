@@ -253,7 +253,7 @@ function drawNodes(itemNodes) {
         .on("mouseover", (event, d) => {
             d3.select(event.currentTarget).select("circle").attr("stroke", "#000").attr("stroke-width", 2);
             const tooltip = d3.select(".d3-tooltip");
-            tooltip.transition().duration(200).style("opacity", .9);
+            tooltip.style("display", "block").style("opacity", .9);
             tooltip.html(`<strong>${d.title}</strong><br/>${d.clusterValue}`);
             
             const container = document.getElementById('cluster-viz-container');
@@ -268,7 +268,7 @@ function drawNodes(itemNodes) {
         })
         .on("mouseout", (event, d) => {
             d3.select(event.currentTarget).select("circle").attr("stroke", "none");
-            d3.select(".d3-tooltip").transition().duration(500).style("opacity", 0);
+            d3.select(".d3-tooltip").style("display", "none").style("opacity", 0);
         })
         .on("click", (event, d) => {
             const id = d.id.startsWith("item-") ? d.id.replace("item-", "") : d.id;
