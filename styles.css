@@ -1,0 +1,168 @@
+:root {
+  /* Fonts */
+  --font-heading: 'Bricolage Grotesque', system-ui, -apple-system, sans-serif;
+  --font-body: 'Geist', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+  /* Colors */
+  --color-bg: #fffbf0;
+  --color-surface: #fffbf0;
+  --color-surface2: #f2efe4;
+  --color-fg: #000000;
+  --color-fg-muted: #444444;
+  --color-fg-inverse: #fffbf0;
+  --color-border: #e6e2d3;
+  --color-border-strong: #d1cdc0;
+  --color-primary: #f2efe4;
+  --color-primary-hover: #e6e2d3;
+  --color-primary-active: #d1cdc0;
+  --color-on-primary: #000000;
+  --color-accent: #111111;
+  --color-on-accent: #fffbf0;
+  --color-success: #2F8A5B;
+  --color-on-success: #FFFFFF;
+  --color-warning: #9E7422;
+  --color-on-warning: #FFFFFF;
+  --color-danger: #A13D34;
+  --color-on-danger: #FFFFFF;
+  --color-info: #2868A8;
+  --color-on-info: #FFFFFF;
+  --color-focus-ring: #f2efe4;
+}
+
+body {
+    background-color: var(--color-bg);
+    color: var(--color-fg);
+    font-family: var(--font-body);
+    margin: 0;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+    color: var(--color-fg);
+}
+
+/* Sidebar Styling */
+.sidebar {
+    background-color: var(--color-surface2) !important;
+    border-right: 1px solid var(--color-border);
+}
+
+.sidebar h2 {
+    color: var(--color-fg);
+}
+
+/* Detail Pane (Right Sidebar) - Sliding Overlay */
+#detail-pane-container {
+    position: fixed;
+    right: 0;
+    top: 0;
+    width: 400px;
+    height: 100vh;
+    background: var(--color-surface);
+    box-shadow: -10px 0 30px rgba(0,0,0,0.1);
+    transform: translateX(100%);
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    z-index: 1000;
+    border-left: 1px solid var(--color-border);
+}
+
+#detail-pane-container.is-open {
+    transform: translateX(0);
+}
+
+.detail-pane-content {
+    padding: 2.5rem;
+    height: 100vh;
+    overflow-y: auto;
+}
+
+.detail-pane-empty {
+    display: none; /* No longer needed with sliding drawer */
+}
+
+.pane-title {
+    font-family: var(--font-heading);
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    line-height: 1.2;
+    color: var(--color-fg);
+}
+
+.pane-img {
+    width: 100%;
+    border-radius: 4px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.btn-close-pane {
+    position: absolute;
+    right: 0;
+    top: 0;
+    background: none;
+    border: none;
+    font-size: 2rem;
+    color: var(--color-fg-muted);
+    cursor: pointer;
+    line-height: 1;
+}
+
+.btn-close-pane:hover {
+    color: var(--color-fg);
+}
+
+/* D3 Visualization */
+#cluster-viz-container {
+    width: 100%;
+    height: 95vh;
+    background: var(--color-bg);
+    overflow: hidden;
+    position: relative;
+    cursor: grab;
+}
+
+.d3-tooltip {
+    position: absolute;
+    padding: 10px 14px;
+    background: var(--color-accent);
+    color: var(--color-on-accent);
+    border-radius: 4px;
+    font-size: 0.85rem;
+    pointer-events: none;
+    z-index: 2000;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    max-width: 250px;
+    font-family: var(--font-body);
+}
+
+/* Metadata Labels */
+.modal-detail-label {
+    font-weight: 700;
+    color: var(--color-fg-muted);
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.25rem;
+    margin-top: 1.5rem;
+}
+
+.modal-detail-row {
+    margin-bottom: 0.5rem;
+    font-size: 1rem;
+    color: var(--color-fg);
+}
+
+/* V&A Website Button */
+.btn-dark {
+    background-color: var(--color-accent);
+    color: var(--color-on-accent);
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 4px;
+    font-weight: 600;
+    transition: background-color 0.2s;
+}
+
+.btn-dark:hover {
+    background-color: var(--color-fg);
+}
