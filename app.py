@@ -38,7 +38,7 @@ app_ui = ui.page_sidebar(
     ),
     ui.head_content(
         ui.include_css(os.path.join(os.path.dirname(__file__), "styles.css")),
-        ui.tags.link(rel="icon", type="image/png", href="favicon.png"),
+        ui.tags.link(rel="icon", type="image/png", href="/favicon.png?v=1"),
         ui.tags.link(rel="preconnect", href="https://fonts.googleapis.com"),
         ui.tags.link(rel="preconnect", href="https://fonts.gstatic.com", crossorigin="anonymous"),
         ui.tags.link(href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&family=Geist:wght@100..900&display=swap", rel="stylesheet"),
@@ -257,9 +257,11 @@ def server(input, output, session: Session):
             return ui.div(
                 {"class": "detail-pane-content"},
                 ui.div(
-                    ui.input_action_button("close_modal", "×", class_="btn-close-pane"),
-                    ui.div(title, class_="pane-title"),
-                    style="position: relative;"
+                    ui.div(
+                        ui.input_action_button("close_modal", "Close", class_="btn-close-pane"),
+                        class_="detail-pane-header"
+                    ),
+                    ui.div(title, class_="pane-title")
                 ),
                 ui.div(
                     ui.tags.img(src=img_url, class_="pane-img") if img_url else ui.div("No image available"),

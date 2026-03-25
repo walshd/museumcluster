@@ -100,23 +100,35 @@ h1, h2, h3, h4, h5, h6 {
     border-radius: 4px;
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
+.detail-pane-header {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 2rem;
+}
 
 .btn-close-pane {
-    position: absolute;
-    right: 0;
-    top: 0;
-    background: none;
-    border: none;
-    font-size: 2rem;
-    color: var(--color-fg-muted);
+    background: var(--color-surface2);
+    border: 1px solid var(--color-border);
+    color: var(--color-fg);
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
     cursor: pointer;
-    line-height: 1;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    font-family: var(--font-body);
 }
 
 .btn-close-pane:hover {
-    color: var(--color-fg);
+    background: var(--color-fg);
+    color: var(--color-surface);
+    border-color: var(--color-fg);
+    transform: translateY(-1px);
 }
 
+.pane-title {
 /* D3 Visualization */
 #cluster-viz-container {
     width: 100%;
