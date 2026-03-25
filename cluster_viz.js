@@ -1,10 +1,10 @@
-console.log("DEBUG: cluster_viz.js v8 (Container-Relative Tooltip) Loaded");
+console.log("DEBUG: cluster_viz.js v9 (Final Tooltip Fix) Loaded");
 
 let width, height;
 let svg, simulation, zoomLayer, zoom;
 
 function initSVG() {
-    console.log("DEBUG: initSVG v8 called");
+    console.log("DEBUG: initSVG v9 called");
     const container = document.getElementById('cluster-viz-container');
     if (!container) {
         console.error("DEBUG: #cluster-viz-container not found!");
@@ -12,14 +12,10 @@ function initSVG() {
     }
     
     width = container.clientWidth;
-    height = container.clientHeight || window.innerHeight; // Ensure a valid height fallback
+    height = container.clientHeight || window.innerHeight;
     
-    console.log(`DEBUG: initSVG Container Size: ${width}x${height}`);
-    
-    // Only remove SVG content, not the overlay buttons
     d3.select("#cluster-viz-container").selectAll("svg").remove();
     
-    // Create SVG
     svg = d3.select("#cluster-viz-container")
         .append("svg")
         .attr("width", width)
@@ -27,12 +23,8 @@ function initSVG() {
         .attr("viewBox", [0, 0, width, height])
         .attr("style", "width: 100%; height: 100%; display: block; background: var(--color-bg); cursor: move;");
 
-    console.log("DEBUG: SVG appended");
-
-    // Add Zoom Layer
     zoomLayer = svg.append("g").attr("class", "zoom-layer");
 
-    // Setup Zoom behavior
     zoom = d3.zoom()
         .scaleExtent([0.1, 10])
         .on("zoom", (event) => {
@@ -41,18 +33,16 @@ function initSVG() {
 
     svg.call(zoom);
 
-    // Setup click for existing UI button
     const fitBtn = document.getElementById('btn-fit-view');
     if (fitBtn) {
         fitBtn.onclick = fitToView;
     }
 
-    // Dynamic Tooltip Creation inside container
-    d3.select("#cluster-viz-container").selectAll(".d3-tooltip").remove(); 
-    d3.select("#cluster-viz-container").append("div")
+    // Dynamic Tooltip Creation on BODY
+    d3.selectAll(".d3-tooltip").remove(); 
+    d3.select("body").append("div")
         .attr("class", "d3-tooltip")
-        .style("opacity", 0)
-        .style("pointer-events", "none");
+        .style("display", "none");
 }
 
 function fitToView() {
@@ -62,8 +52,6 @@ function fitToView() {
 
     const fullWidth = width;
     const fullHeight = height;
-    const widthPadding = 100;
-    const heightPadding = 100;
 
     const midX = bounds.x + bounds.width / 2;
     const midY = bounds.y + bounds.height / 2;
@@ -123,12 +111,11 @@ const PLACE_COORDS = {
 
 function renderMapViz(data) {
     const projection = d3.geoNaturalEarth1()
-        .scale(width / 2.2) // Even larger scale to provide maximum space
+        .scale(width / 2.2) 
         .translate([width / 2, height / 2]);
 
     const path = d3.geoPath().projection(projection);
 
-    // Load world map
     d3.json("https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/world.geojson").then(function(world) {
         zoomLayer.append("g")
             .selectAll("path")
@@ -140,7 +127,6 @@ function renderMapViz(data) {
             .attr("stroke", "var(--color-border)")
             .attr("stroke-width", 0.5);
 
-        // Map items to nodes
         const nodes = data.map(d => {
             let coords = d.coords;
             if (!coords && PLACE_COORDS[d.clusterValue]) {
@@ -163,10 +149,9 @@ function renderMapViz(data) {
             };
         });
 
-        // Use force simulation to cluster at points but prevent overlap
         simulation = d3.forceSimulation(nodes)
-            .force("x", d3.forceX(d => d.targetX).strength(0.3)) // Increased strength
-            .force("y", d3.forceY(d => d.targetY).strength(0.3)) // Increased strength
+            .force("x", d3.forceX(d => d.targetX).strength(0.3))
+            .force("y", d3.forceY(d => d.targetY).strength(0.3))
             .force("collide", d3.forceCollide().radius(18))
             .force("charge", d3.forceManyBody().strength(-5));
 
@@ -181,7 +166,6 @@ function renderMapViz(data) {
 }
 
 function renderForceViz(data, clusters) {
-    // 1. Create Nodes
     const clusterNodes = clusters.map(c => ({
         id: `cluster-${c.value}`,
         name: c.value,
@@ -202,13 +186,11 @@ function renderForceViz(data, clusters) {
 
     const allNodes = [...clusterNodes, ...itemNodes];
 
-    // 2. Create Links
     const links = itemNodes.map(d => {
         const target = clusterNodes.find(c => c.name === d.clusterValue);
         return target ? { source: d.id, target: target.id } : null;
     }).filter(l => l !== null);
 
-    // 3. Setup Simulation
     simulation = d3.forceSimulation(allNodes)
         .force("charge", d3.forceManyBody().strength(d => d.isCluster ? -2500 : -30))
         .force("link", d3.forceLink(links)
@@ -216,18 +198,17 @@ function renderForceViz(data, clusters) {
             .distance(70)
             .strength(1))
         .force("center", d3.forceCenter(width / 2, height / 2))
-        .force("collision", d3.forceCollide().radius(d => d.isCluster ? 110 : d.radius + 4))
+        .force("collision", d3.forceCollide().radius(d => d.isCluster ? 110 : 19))
         .force("x", d3.forceX(width / 2).strength(0.08))
         .force("y", d3.forceY(height / 2).strength(0.08));
 
-    // 4. Draw Cluster Labels
     const labels = zoomLayer.selectAll(".cluster-label")
         .data(clusterNodes)
         .enter()
         .append("text")
         .attr("class", "cluster-label")
         .attr("text-anchor", "middle")
-        .attr("style", "font-family: var(--font-heading); font-weight: 900; font-size: 14px; fill: var(--color-accent); text-transform: uppercase; letter-spacing: 2px; cursor: pointer; opacity: 0.7;")
+        .attr("style", "font-family: var(--font-heading); font-weight: 900; font-size: 14px; fill: var(--color-accent); text-transform: uppercase; letter-spacing: 2px; opacity: 0.7;")
         .text(d => d.name)
         .on("click", (event, d) => {
             Shiny.setInputValue("search_query", d.name);
@@ -254,21 +235,19 @@ function drawNodes(itemNodes) {
             d3.select(event.currentTarget).select("circle").attr("stroke", "#000").attr("stroke-width", 2);
             const tooltip = d3.select(".d3-tooltip");
             tooltip.style("display", "block").style("opacity", .9);
-            tooltip.html(`<strong>${d.title}</strong><br/>${d.clusterValue}`);
-            
-            const container = document.getElementById('cluster-viz-container');
-            const [x, y] = d3.pointer(event, container);
-            tooltip.style("left", (x + 15) + "px").style("top", (y - 15) + "px");
+            tooltip.html(`<strong>${d.title}</strong><br/>${d.clusterValue}`)
+                .style("left", (event.clientX + 15) + "px")
+                .style("top", (event.clientY - 15) + "px");
         })
         .on("mousemove", (event) => {
             const tooltip = d3.select(".d3-tooltip");
-            const container = document.getElementById('cluster-viz-container');
-            const [x, y] = d3.pointer(event, container);
-            tooltip.style("left", (x + 15) + "px").style("top", (y - 15) + "px");
+            tooltip
+                .style("left", (event.clientX + 15) + "px")
+                .style("top", (event.clientY - 15) + "px");
         })
         .on("mouseout", (event, d) => {
             d3.select(event.currentTarget).select("circle").attr("stroke", "none");
-            d3.select(".d3-tooltip").style("display", "none").style("opacity", 0);
+            d3.select(".d3-tooltip").style("display", "none");
         })
         .on("click", (event, d) => {
             const id = d.id.startsWith("item-") ? d.id.replace("item-", "") : d.id;
@@ -305,4 +284,3 @@ function drawNodes(itemNodes) {
         }
     });
 }
-
