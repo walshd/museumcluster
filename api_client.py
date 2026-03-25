@@ -18,12 +18,9 @@ class VAClient:
             "images_exist": 1 # For a visual interface, images are essential
         }
         url = f"{self.BASE_URL}/objects/search"
-        print(f"DEBUG: API Search URL: {url} with params: {params}")
         response = self.session.get(url, params=params)
-        print(f"DEBUG: API Response Status: {response.status_code}")
         response.raise_for_status()
         data = response.json()
-        print(f"DEBUG: API Records Found: {data.get('info', {}).get('record_count', 0)}")
         return data
 
     def get_clusters(self, query: str, cluster_field: str) -> Dict[str, Any]:
@@ -62,21 +59,3 @@ class VAClient:
         with ThreadPoolExecutor(max_workers=10) as executor:
             results = list(executor.map(fetch_one, system_numbers))
         return results
-
-if __name__ == "__main__":
-    # Quick sanity check
-    client = VAClient()
-    try:
-        results = client.search("chair", page_size=10)
-        print(f"Search found: {results['info']['record_count']} items.")
-        if results.get('records'):
-            print("First 5 objectTypes:")
-            for r in results['records'][:5]:
-                print(f" - {r.get('objectType')}")
-        
-        clusters = client.get_clusters("chair", "category")
-        print(f"Top 5 Category clusters:")
-        for c in clusters[:5]:
-            print(f" - {c['value']} ({c['count']})")
-    except Exception as e:
-        print(f"Error: {e}")

@@ -2,6 +2,7 @@ from shiny import App, render, ui, reactive, Session
 import os
 import pandas as pd
 from api_client import VAClient
+from dynamic_clustering import get_dynamic_clusters
 
 # Initialize API Client
 client = VAClient()
@@ -9,27 +10,34 @@ client = VAClient()
 # Define UI
 app_ui = ui.page_sidebar(
     ui.sidebar(
-        ui.h2("MuseumCluster", style="font-weight: 800; letter-spacing: -1px; margin-bottom: 0.5rem;"),
-        ui.p("Explore the V&A Collections through a generous, clustered interface.", style="color: var(--color-fg-muted); font-size: 0.85rem; margin-bottom: 2rem;"),
-        
-        ui.input_text("search_query", "Search Collection", placeholder="e.g. 'Art Deco'...", width="100%"),
-        ui.hr(),
-        ui.input_select("cluster_field_select", "Cluster by:", {
-            "category": "Category",
-            "material": "Material",
-            "place": "Place"
-        }, selected="category", width="100%"),
-        
-        ui.div(
-            ui.output_text("results_summary"),
-            style="margin-top: 3rem; color: var(--color-fg-muted); font-size: 0.8rem;"
+        ui.tags.header(
+            ui.h1("MuseumCluster", style="font-weight: 800; font-size: 1.5rem; letter-spacing: -1px; margin-bottom: 0.5rem;"),
+            ui.p("Explore the V&A Collections through a generous, clustered interface.", style="color: var(--color-fg-muted); font-size: 0.85rem; margin-bottom: 2rem;"),
+            role="banner"
         ),
         ui.div(
-            ui.tags.hr(style="margin: 2rem 0 1rem 0; border-top: 1px solid var(--color-border);"),
+            ui.input_text("search_query", "Search Collection", placeholder="e.g. 'Art Deco'...", width="100%"),
+            ui.HTML("<hr>"),
+            ui.input_select("cluster_field_select", "Cluster by:", {
+                "category": "Category",
+                "material": "Material",
+                "place": "Place",
+                "content": "Content (Dynamic)"
+            }, selected="category", width="100%"),
+            
+            ui.div(
+                ui.output_text("results_summary"),
+                style="margin-top: 3rem; color: var(--color-fg-muted); font-size: 0.8rem;"
+            ),
+            class_="sidebar-content"
+        ),
+        ui.tags.footer(
+            ui.HTML('<hr style="margin: 2rem 0 1rem 0; border-top: 1px solid var(--color-border);">'),
             ui.p(
                 "This project is developed as part of ",
                 ui.tags.a("Experimental Museum Interfaces (EMI)", href="https://emi.computing.edgehill.ac.uk/", target="_blank", style="color: var(--color-fg); text-decoration: underline;"),
-                " © 2025 • All rights reserved.",
+                ui.HTML("<br>"),
+                "@ 2025 • All rights reserved.",
                 style="font-size: 0.7rem; color: var(--color-fg-muted); line-height: 1.4;"
             ),
             style="margin-top: auto;"
@@ -38,27 +46,22 @@ app_ui = ui.page_sidebar(
     ),
     ui.head_content(
         ui.include_css(os.path.join(os.path.dirname(__file__), "styles.css")),
-        ui.tags.link(rel="icon", type="image/png", href="/favicon.png?v=1"),
-        ui.tags.link(rel="preconnect", href="https://fonts.googleapis.com"),
-        ui.tags.link(rel="preconnect", href="https://fonts.gstatic.com", crossorigin="anonymous"),
-        ui.tags.link(href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&family=Geist:wght@100..900&display=swap", rel="stylesheet"),
-        ui.tags.script(src="https://d3js.org/d3.v7.min.js"),
-        ui.include_js(os.path.join(os.path.dirname(__file__), "cluster_viz.js")),
         ui.tags.title("MuseumCluster | Generous V&A Explorer")
     ),
     # Main Content Area: Viz (Full Width) and Detail Pane (Overlay)
     ui.div(
-        ui.div(
-            ui.div(id="d3-tooltip", class_="d3-tooltip", style="opacity: 0; pointer-events: none;"),
-            id="cluster-viz-container"
-        ),
+        ui.div(id="cluster-viz-container"),
         ui.tags.button("Fit to View", id="btn-fit-view", class_="btn-fit-view"),
-        ui.div(
+        ui.tags.article(
+            ui.h3("Item Details", style="position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;"),
             ui.output_ui("item_detail_pane"),
             id="detail-pane-container"
         ),
+        ui.tags.script(src="https://d3js.org/d3.v7.min.js"),
+        ui.include_js(os.path.join(os.path.dirname(__file__), "cluster_viz.js")),
         style="position: relative; overflow: hidden; height: 100vh;"
-    )
+    ),
+    lang="en"
 )
 
 def server(input, output, session: Session):
@@ -89,12 +92,9 @@ def server(input, output, session: Session):
             sids = [r.get("systemNumber") for r in summary_records if r.get("systemNumber")]
             
             # Now fetch full records in bulk (parallel) to get materials/categories
-            print(f"DEBUG: Bulk fetching {len(sids)} full records for query '{query_to_use}'...")
             full_records = client.get_objects_bulk(sids)
-            print(f"DEBUG: Bulk fetch complete.")
             return full_records
-        except Exception as e:
-            print(f"DEBUG: Shiny Search error: {e}")
+        except Exception:
             return []
 
     @reactive.Calc
@@ -125,7 +125,13 @@ def server(input, output, session: Session):
             return
 
         field = current_cluster_field()
+        dynamic_clusters = []
+        dynamic_mapping = {}
         
+        if field == "content":
+            query = input.search_query() or "art"
+            dynamic_clusters, dynamic_mapping = get_dynamic_clusters(records, query)
+
         def normalize(val, field_type):
             if not val or val == "Unknown": return "Unknown"
             v = val.lower().strip()
@@ -175,9 +181,13 @@ def server(input, output, session: Session):
             raw_val = "Unknown"
             coords = None
             
-            if field == "category":
+            if field == "content":
+                raw_val = dynamic_mapping.get(sid, "Other")
+                c_val = raw_val
+            elif field == "category":
                 cats = rec.get("categories", [])
                 raw_val = cats[0].get("text", "Unknown") if cats else "Unknown"
+                c_val = normalize(raw_val, field)
             elif field == "place":
                 places = rec.get("placesOfOrigin", [])
                 if places:
@@ -189,11 +199,11 @@ def server(input, output, session: Session):
                     lon = p_obj.get("longitude")
                     if lat is not None and lon is not None:
                         coords = [float(lon), float(lat)]
+                c_val = normalize(raw_val, field)
             elif field == "material":
                 mats = rec.get("materials", [])
                 raw_val = mats[0].get("text", "Unknown").capitalize() if mats else "Unknown"
-            
-            c_val = normalize(raw_val, field)
+                c_val = normalize(raw_val, field)
             
             # Extract title safely
             titles = rec.get("titles", [])
@@ -246,17 +256,36 @@ def server(input, output, session: Session):
         
         try:
             full_data = client.get_object(item_id)
+            if not full_data:
+                return ui.div("No data available for this item.")
+
             item_data = full_data.get("record", {})
             meta = full_data.get("meta", {})
             images = meta.get("images", {})
             
-            img_url = images.get("_primary_thumbnail", "").replace("!100,100", "!1000,1000")
-            title = item_data.get("titles", [{"title": "Untitled"}])[0].get("title")
+            # Robust image URL extraction
+            thumbnail = images.get("_primary_thumbnail") or ""
+            img_url = thumbnail.replace("!100,100", "!1000,1000") if thumbnail else None
             
-            # Extract lists
-            mats = ", ".join([m.get("text", "") for m in item_data.get("materials", [])])
-            cats = ", ".join([c.get("text", "") for c in item_data.get("categories", [])])
-            makers = ", ".join([m.get("name", {}).get("text", "") for m in item_data.get("artistMakerPerson", [])])
+            # Robust title extraction
+            titles = item_data.get("titles")
+            title = "Untitled"
+            if isinstance(titles, list) and len(titles) > 0:
+                title = titles[0].get("title", "Untitled")
+            elif item_data.get("objectType"):
+                title = item_data.get("objectType")
+            
+            # Extract lists safely
+            mats_list = item_data.get("materials", [])
+            mats = ", ".join([m.get("text", "") for m in mats_list if isinstance(m, dict)])
+            
+            cats_list = item_data.get("categories", [])
+            cats = ", ".join([c.get("text", "") for c in cats_list if isinstance(c, dict)])
+            
+            makers_list = item_data.get("artistMakerPerson", [])
+            makers = ", ".join([m.get("name", {}).get("text", "") for m in makers_list if isinstance(m, dict)])
+            
+            desc = item_data.get("summaryDescription") or item_data.get("briefDescription") or item_data.get("physicalDescription") or "No description available."
             
             return ui.div(
                 {"class": "detail-pane-content"},
@@ -265,7 +294,7 @@ def server(input, output, session: Session):
                         ui.input_action_button("close_modal", "Close", class_="btn-close-pane"),
                         class_="detail-pane-header"
                     ),
-                    ui.div(title, class_="pane-title")
+                    ui.div(ui.HTML(title), class_="pane-title")
                 ),
                 ui.div(
                     ui.tags.img(src=img_url, class_="pane-img") if img_url else ui.div("No image available"),
@@ -276,24 +305,23 @@ def server(input, output, session: Session):
                     ui.div(item_id, class_="modal-detail-row"),
                     
                     ui.div("Category", class_="modal-detail-label"),
-                    ui.div(cats or "Unknown", class_="modal-detail-row"),
+                    ui.div(ui.HTML(cats or "Unknown"), class_="modal-detail-row"),
                     
                     ui.div("Material", class_="modal-detail-label"),
-                    ui.div(mats or "Unknown", class_="modal-detail-row"),
+                    ui.div(ui.HTML(mats or "Unknown"), class_="modal-detail-row"),
                     
                     ui.div("Maker", class_="modal-detail-label"),
-                    ui.div(makers or "Unknown", class_="modal-detail-row"),
+                    ui.div(ui.HTML(makers or "Unknown"), class_="modal-detail-row"),
                     
                     ui.div("Description", class_="modal-detail-label"),
-                    ui.div(item_data.get("summaryDescription", ""), class_="modal-detail-row", style="font-size: 0.9rem; line-height: 1.6;"),
+                    ui.div(ui.HTML(desc), class_="modal-detail-row", style="font-size: 0.9rem; line-height: 1.6;"),
                     
                     ui.div(
                         ui.tags.a("View on V&A Website", href=f"https://collections.vam.ac.uk/item/{item_id}", target="_blank", class_="btn btn-dark w-100", style="margin-top: 1rem; display: inline-block;")
                     )
                 )
             )
-        except Exception as e:
-            print(f"DEBUG: Detail Error: {e}")
+        except Exception:
             return ui.div("Error loading details.")
 
     # Observe view_item from JS
