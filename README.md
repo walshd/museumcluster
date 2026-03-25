@@ -5,7 +5,8 @@ MuseumCluster is a "generous" interface for exploring the Victoria and Albert (V
 ## 🖼️ The Experience
 
 *   **Generous Start:** Launches with a broad selection of art from the V&A, immediately populating the view.
-*   **Clustered Visualization:** Uses a tethered force-directed graph (D3.js) to group items by **Category**, **Material**, or **Place of Origin**.
+*   **Clustered Visualization:** Uses a tethered force-directed graph (D3.js) to group items by **Category**, **Material**, **Place of Origin**, or **Content (Dynamic)**.
+*   **Dynamic Content Analysis:** The new "Content" mode analyzes titles and descriptions in real-time to group items by specific themes (e.g., animals, people, objects) using a custom heuristic-based engine.
 *   **Sliding Detail Pane:** Clicking an item smoothly slides in a detailed metadata panel from the right, allowing for deep dives without losing visual context.
 *   **Minimalist Aesthetic:** A warm, paper-like color palette (`#fffbf0`) paired with high-contrast typography.
 
@@ -55,12 +56,26 @@ The interface follows a strict aesthetic:
     ```bash
     shiny run app.py
     ```
-    The app will typically be available at `http://localhost:8000`.
+
+### Running with Docker
+
+If you prefer using Docker, you can launch the entire stack with a single command:
+
+1.  **Build and run the container:**
+    ```bash
+    docker-compose up --build
+    ```
+
+2.  **Access the app:**
+    Open your browser and navigate to `http://localhost:8000`.
+
+    The app will be available at `http://localhost:8000`.
 
 ## 📁 Project Structure
 
 - `app.py`: The main Shiny application logic and UI definition.
 - `api_client.py`: A specialized client for interacting with the V&A V2 API.
+- `dynamic_clustering.py`: A heuristic-based engine for real-time theme extraction and grouping.
 - `cluster_viz.js`: Custom D3.js code for the clustered tethered-cloud visualization.
 - `styles.css`: Custom styling, including the sliding drawer logic and theme variables.
 
