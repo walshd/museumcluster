@@ -254,19 +254,15 @@ function drawNodes(itemNodes) {
             const tooltip = d3.select(".d3-tooltip");
             tooltip.transition().duration(200).style("opacity", .9);
             tooltip.html(`<strong>${d.title}</strong><br/>${d.clusterValue}`)
-                .style("left", (event.clientX + 15) + "px")
-                .style("top", (event.clientY - 15) + "px");
+                .style("left", (event.clientX + 15) + "px", "important")
+                .style("top", (event.clientY - 15) + "px", "important");
         })
         .on("mousemove", (event) => {
             const tooltip = d3.select(".d3-tooltip");
             if (tooltip.empty()) return;
-            
-            const x = event.clientX;
-            const y = event.clientY;
-            
             tooltip
-                .style("left", (x + 15) + "px")
-                .style("top", (y - 15) + "px");
+                .style("left", (event.clientX + 15) + "px", "important")
+                .style("top", (event.clientY - 15) + "px", "important");
         })
         .on("mouseout", (event, d) => {
             d3.select(event.currentTarget).select("circle").attr("stroke", "none");
