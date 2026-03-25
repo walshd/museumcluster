@@ -167,7 +167,7 @@ h1, h2, h3, h4, h5, h6 {
 
 /* D3 Tooltip */
 .d3-tooltip {
-    position: absolute;
+    position: fixed;
     padding: 10px 14px;
     background: var(--color-accent);
     color: var(--color-on-accent);
