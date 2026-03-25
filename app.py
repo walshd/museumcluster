@@ -28,6 +28,7 @@ app_ui = ui.page_sidebar(
     ),
     ui.head_content(
         ui.include_css(os.path.join(os.path.dirname(__file__), "styles.css")),
+        ui.tags.link(rel="icon", type="image/svg+xml", href="favicon.svg"),
         ui.tags.link(rel="preconnect", href="https://fonts.googleapis.com"),
         ui.tags.link(rel="preconnect", href="https://fonts.gstatic.com", crossorigin="anonymous"),
         ui.tags.link(href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&family=Geist:wght@100..900&display=swap", rel="stylesheet"),
@@ -124,8 +125,20 @@ def server(input, output, session: Session):
                 if any(x in v for x in ["ceramic", "porcelain", "earthenware", "stoneware", "clay"]): return "Ceramics"
                 if "glass" in v: return "Glass"
             elif field_type == "place":
-                if any(x in v for x in ["usa", "united states", "u.s.a."]): return "United States"
-                if any(x in v for x in ["uk", "united kingdom", "great britain", "england", "london", "scotland", "wales"]): return "United Kingdom"
+                if any(x in v for x in ["usa", "united states", "u.s.a.", "new york", "chicago", "california"]): return "United States"
+                if any(x in v for x in ["uk", "united kingdom", "great britain", "england", "london", "scotland", "wales", "liverpool", "manchester", "birmingham", "staffordshire", "worcester"]): return "United Kingdom"
+                if any(x in v for x in ["france", "paris", "sevres", "lyon"]): return "France"
+                if any(x in v for x in ["italy", "rome", "venice", "florence", "milan", "naples"]): return "Italy"
+                if any(x in v for x in ["germany", "berlin", "meissen", "dresden", "munich"]): return "Germany"
+                if any(x in v for x in ["china", "beijing", "shanghai", "canton", "jingdezhen"]): return "China"
+                if any(x in v for x in ["japan", "tokyo", "kyoto", "osaka", "edo"]): return "Japan"
+                if any(x in v for x in ["india", "delhi", "mumbai", "calcutta", "bengal"]): return "India"
+                if any(x in v for x in ["iran", "persia", "tehran", "isfahan"]): return "Iran"
+                if any(x in v for x in ["egypt", "cairo", "alexandria"]): return "Egypt"
+                if any(x in v for x in ["netherlands", "holland", "amsterdam", "delft"]): return "Netherlands"
+                if any(x in v for x in ["spain", "madrid", "barcelona", "valencia"]): return "Spain"
+                if any(x in v for x in ["belgium", "brussels", "antwerp"]): return "Belgium"
+                if any(x in v for x in ["switzerland", "zurich", "geneva"]): return "Switzerland"
             elif field_type == "category":
                 if "photograph" in v: return "Photographs"
                 if "drawing" in v: return "Drawings"
@@ -146,12 +159,22 @@ def server(input, output, session: Session):
             
             # Direct extraction from full record
             raw_val = "Unknown"
+            coords = None
+            
             if field == "category":
                 cats = rec.get("categories", [])
                 raw_val = cats[0].get("text", "Unknown") if cats else "Unknown"
             elif field == "place":
                 places = rec.get("placesOfOrigin", [])
-                raw_val = places[0].get("place", {}).get("text", "Unknown") if places else "Unknown"
+                if places:
+                    p_obj = places[0].get("place", {})
+                    raw_val = p_obj.get("text", "Unknown")
+                    # Try to find lat/long if available in the API response
+                    # Note: V&A V2 API sometimes has lat/long in the place object
+                    lat = p_obj.get("latitude")
+                    lon = p_obj.get("longitude")
+                    if lat is not None and lon is not None:
+                        coords = [float(lon), float(lat)]
             elif field == "material":
                 mats = rec.get("materials", [])
                 raw_val = mats[0].get("text", "Unknown").capitalize() if mats else "Unknown"
@@ -170,7 +193,8 @@ def server(input, output, session: Session):
                 "id": sid,
                 "title": title,
                 "imgUrl": f"https://framemark.vam.ac.uk/collections/{img_id}/full/!100,100/0/default.jpg" if img_id else None,
-                "clusterValue": c_val
+                "clusterValue": c_val,
+                "coords": coords
             })
 
         # CALCULATE LOCAL CLUSTERS
@@ -181,7 +205,8 @@ def server(input, output, session: Session):
             
         await session.send_custom_message("update_cluster_data", {
             "data": viz_data,
-            "clusters": local_clusters
+            "clusters": local_clusters,
+            "field": field
         })
 
     @output
