@@ -259,9 +259,14 @@ function drawNodes(itemNodes) {
         })
         .on("mousemove", (event) => {
             const tooltip = d3.select(".d3-tooltip");
+            if (tooltip.empty()) return;
+            
+            const x = event.clientX;
+            const y = event.clientY;
+            
             tooltip
-                .style("left", (event.clientX + 15) + "px")
-                .style("top", (event.clientY - 15) + "px");
+                .style("left", (x + 15) + "px")
+                .style("top", (y - 15) + "px");
         })
         .on("mouseout", (event, d) => {
             d3.select(event.currentTarget).select("circle").attr("stroke", "none");
