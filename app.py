@@ -302,4 +302,6 @@ def server(input, output, session: Session):
     def _():
         selected_item_id.set(None)
 
-app = App(app_ui, server)
+# Define static assets directory
+www_dir = os.path.join(os.path.dirname(__file__), "www")
+app = App(app_ui, server, static_assets=www_dir)
