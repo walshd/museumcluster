@@ -46,12 +46,6 @@ function initSVG() {
     if (fitBtn) {
         fitBtn.onclick = fitToView;
     }
-
-    if (!document.querySelector(".d3-tooltip")) {
-        d3.select("body").append("div")
-            .attr("class", "d3-tooltip")
-            .style("opacity", 0);
-    }
 }
 
 function fitToView() {
@@ -251,22 +245,21 @@ function drawNodes(itemNodes) {
         .attr("transform", d => `translate(${d.x},${d.y})`)
         .on("mouseover", (event, d) => {
             d3.select(event.currentTarget).select("circle").attr("stroke", "#000").attr("stroke-width", 2);
-            const tooltip = d3.select(".d3-tooltip");
+            const tooltip = d3.select("#d3-tooltip");
             tooltip.transition().duration(200).style("opacity", .9);
-            tooltip.html(`<strong>${d.title}</strong><br/>${d.clusterValue}`)
-                .style("left", (event.clientX + 15) + "px", "important")
-                .style("top", (event.clientY - 15) + "px", "important");
+            tooltip.html(`<strong>${d.title}</strong><br/>${d.clusterValue}`);
         })
         .on("mousemove", (event) => {
-            const tooltip = d3.select(".d3-tooltip");
-            if (tooltip.empty()) return;
+            const tooltip = d3.select("#d3-tooltip");
+            const container = document.getElementById('cluster-viz-container');
+            const [x, y] = d3.pointer(event, container);
             tooltip
-                .style("left", (event.clientX + 15) + "px", "important")
-                .style("top", (event.clientY - 15) + "px", "important");
+                .style("left", (x + 15) + "px", "important")
+                .style("top", (y - 15) + "px", "important");
         })
         .on("mouseout", (event, d) => {
             d3.select(event.currentTarget).select("circle").attr("stroke", "none");
-            d3.select(".d3-tooltip").transition().duration(500).style("opacity", 0);
+            d3.select("#d3-tooltip").transition().duration(500).style("opacity", 0);
         })
         .on("click", (event, d) => {
             const id = d.id.startsWith("item-") ? d.id.replace("item-", "") : d.id;
