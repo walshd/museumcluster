@@ -167,18 +167,17 @@ h1, h2, h3, h4, h5, h6 {
 
 /* D3 Tooltip */
 .d3-tooltip {
-    position: absolute !important;
+    position: absolute;
     padding: 10px 14px;
-    background: var(--color-accent) !important;
-    color: var(--color-on-accent) !important;
+    background: var(--color-accent);
+    color: var(--color-on-accent);
     border-radius: 4px;
     font-size: 0.85rem;
     pointer-events: none;
-    z-index: 10000 !important;
+    z-index: 10000;
     box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
     max-width: 250px;
     font-family: var(--font-body);
-    display: block !important;
 }
 
 .cluster-label {
