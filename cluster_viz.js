@@ -1,10 +1,10 @@
-console.log("DEBUG: cluster_viz.js Zoomable Tethered Cloud Loaded");
+console.log("DEBUG: cluster_viz.js v8 (Container-Relative Tooltip) Loaded");
 
 let width, height;
 let svg, simulation, zoomLayer, zoom;
 
 function initSVG() {
-    console.log("DEBUG: initSVG called");
+    console.log("DEBUG: initSVG v8 called");
     const container = document.getElementById('cluster-viz-container');
     if (!container) {
         console.error("DEBUG: #cluster-viz-container not found!");
@@ -47,9 +47,9 @@ function initSVG() {
         fitBtn.onclick = fitToView;
     }
 
-    // Dynamic Tooltip Creation
-    d3.selectAll(".d3-tooltip").remove(); 
-    d3.select("body").append("div")
+    // Dynamic Tooltip Creation inside container
+    d3.select("#cluster-viz-container").selectAll(".d3-tooltip").remove(); 
+    d3.select("#cluster-viz-container").append("div")
         .attr("class", "d3-tooltip")
         .style("opacity", 0)
         .style("pointer-events", "none");
@@ -254,15 +254,17 @@ function drawNodes(itemNodes) {
             d3.select(event.currentTarget).select("circle").attr("stroke", "#000").attr("stroke-width", 2);
             const tooltip = d3.select(".d3-tooltip");
             tooltip.transition().duration(200).style("opacity", .9);
-            tooltip.html(`<strong>${d.title}</strong><br/>${d.clusterValue}`)
-                .style("left", (event.clientX + 15) + "px")
-                .style("top", (event.clientY - 15) + "px");
+            tooltip.html(`<strong>${d.title}</strong><br/>${d.clusterValue}`);
+            
+            const container = document.getElementById('cluster-viz-container');
+            const [x, y] = d3.pointer(event, container);
+            tooltip.style("left", (x + 15) + "px").style("top", (y - 15) + "px");
         })
         .on("mousemove", (event) => {
             const tooltip = d3.select(".d3-tooltip");
-            tooltip
-                .style("left", (event.clientX + 15) + "px")
-                .style("top", (event.clientY - 15) + "px");
+            const container = document.getElementById('cluster-viz-container');
+            const [x, y] = d3.pointer(event, container);
+            tooltip.style("left", (x + 15) + "px").style("top", (y - 15) + "px");
         })
         .on("mouseout", (event, d) => {
             d3.select(event.currentTarget).select("circle").attr("stroke", "none");
