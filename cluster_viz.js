@@ -257,9 +257,11 @@ function drawNodes(itemNodes) {
         })
         .on("mousemove", (event) => {
             const tooltip = d3.select(".d3-tooltip");
+            const container = document.getElementById('cluster-viz-container');
+            const [x, y] = d3.pointer(event, container);
             tooltip
-                .style("left", (event.offsetX + 15) + "px")
-                .style("top", (event.offsetY - 15) + "px");
+                .style("left", (x + 15) + "px")
+                .style("top", (y - 15) + "px");
         })
         .on("mouseout", (event, d) => {
             d3.select(event.currentTarget).select("circle").attr("stroke", "none");
