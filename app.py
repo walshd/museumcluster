@@ -24,6 +24,16 @@ app_ui = ui.page_sidebar(
             ui.output_text("results_summary"),
             style="margin-top: 3rem; color: var(--color-fg-muted); font-size: 0.8rem;"
         ),
+        ui.div(
+            ui.tags.hr(style="margin: 2rem 0 1rem 0; border-top: 1px solid var(--color-border);"),
+            ui.p(
+                "This project is developed as part of ",
+                ui.tags.a("Experimental Museum Interfaces (EMI)", href="https://emi.computing.edgehill.ac.uk/", target="_blank", style="color: var(--color-fg); text-decoration: underline;"),
+                " © 2025 • All rights reserved.",
+                style="font-size: 0.7rem; color: var(--color-fg-muted); line-height: 1.4;"
+            ),
+            style="margin-top: auto;"
+        ),
         width=280
     ),
     ui.head_content(
