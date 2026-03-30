@@ -59,7 +59,14 @@ The interface follows a strict aesthetic:
 
 ### Running with Docker
 
-If you prefer using Docker, you can launch the entire stack with a single command:
+You can pull and run the pre-built image from Docker Hub (AMD64):
+
+```bash
+docker pull danny2097/museumcluster:latest
+docker run -p 8000:8000 danny2097/museumcluster:latest
+```
+
+Alternatively, you can build and launch the entire stack locally:
 
 1.  **Build and run the container:**
     ```bash
