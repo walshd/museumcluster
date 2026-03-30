@@ -71,6 +71,32 @@ If you prefer using Docker, you can launch the entire stack with a single comman
 
     The app will be available at `http://localhost:8000`.
 
+## 📚 Data Sources & Disclaimer
+
+This project uses data and API services provided by the Victoria and Albert Museum.
+
+### Citations
+
+```bibtex
+@misc{vam-2021-collections-data,
+  author = {Victoria and Albert Museum},
+  title = {Victoria and Albert Museum Collections Data},
+  year = {2021},
+  note = {data retrieved via Victoria and Albert Museum Collections API, \url{https://developers.vam.ac.uk/}},
+  url = {https://collections.vam.ac.uk/}
+}
+
+@software{vam-2021-collections-api,
+    author       = {Victoria and Albert Museum},
+    title        = {Victoria and Albert Museum Collections API v2},
+    year         = 2021,
+    version      = {2},
+    url          = {https://developers.vam.ac.uk/},
+}
+```
+
+*Disclaimer: This application is an independent project and is not affiliated with, endorsed by, or officially connected to the Victoria and Albert Museum.*
+
 ## 📁 Project Structure
 
 - `app.py`: The main Shiny application logic and UI definition.

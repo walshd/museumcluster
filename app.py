@@ -34,10 +34,16 @@ app_ui = ui.page_sidebar(
         ui.tags.footer(
             ui.HTML('<hr style="margin: 2rem 0 1rem 0; border-top: 1px solid var(--color-border);">'),
             ui.p(
-                "This project is developed as part of ",
+                "Data provided by the ",
+                ui.tags.a("Victoria and Albert Museum", href="https://developers.vam.ac.uk/", target="_blank", style="color: var(--color-fg); text-decoration: underline;"),
+                ". This is an independent project and is not officially connected to the V&A.",
+                style="font-size: 0.65rem; color: var(--color-fg-muted); line-height: 1.4; margin-bottom: 1rem;"
+            ),
+            ui.p(
+                "Developed as part of ",
                 ui.tags.a("Experimental Museum Interfaces (EMI)", href="https://emi.computing.edgehill.ac.uk/", target="_blank", style="color: var(--color-fg); text-decoration: underline;"),
                 ui.HTML("<br>"),
-                "@ 2025 • All rights reserved.",
+                "@ 2026 • All rights reserved.",
                 style="font-size: 0.7rem; color: var(--color-fg-muted); line-height: 1.4;"
             ),
             style="margin-top: auto;"
@@ -46,6 +52,7 @@ app_ui = ui.page_sidebar(
     ),
     ui.head_content(
         ui.include_css(os.path.join(os.path.dirname(__file__), "styles.css")),
+        ui.tags.link(rel="icon", type="image/svg+xml", href="favicon.svg"),
         ui.tags.title("MuseumCluster | Generous V&A Explorer")
     ),
     # Main Content Area: Viz (Full Width) and Detail Pane (Overlay)
